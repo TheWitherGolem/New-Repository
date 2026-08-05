@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Omnissiah Academy — AdMech &amp; 40k 11th Edition Trainer</title>
+<style>
+  :root {
+    --bg: #12100e;
+    --panel: #1c1917;
+    --panel2: #242019;
+    --border: #3b332a;
+    --text: #e8e0d4;
+    --muted: #a89f90;
+    --red: #b5342c;
+    --red-bright: #e05545;
+    --brass: #c9a961;
+    --green: #6fae6f;
+    --blue: #6f9dae;
+    --code-bg: #2a2622;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1.6;
+  }
+  a { color: var(--brass); }
+
+  /* Layout */
+  #app { display: flex; min-height: 100vh; }
+  #sidebar {
+    width: 280px; min-width: 280px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 1.2rem 0.8rem;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  #content { flex: 1; padding: 2rem 3rem; max-width: 900px; }
+
+  .logo { text-align: center; margin-bottom: 1.2rem; }
+  .logo .cog { font-size: 2.2rem; color: var(--red-bright); }
+  .logo h1 { font-size: 1.05rem; color: var(--brass); letter-spacing: 0.08em; text-transform: uppercase; }
+  .logo p { font-size: 0.75rem; color: var(--muted); font-style: italic; }
+
+  .nav-group { margin-bottom: 0.9rem; }
+  .nav-group-title {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--muted); padding: 0.3rem 0.6rem;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    width: 100%; text-align: left;
+    background: none; border: none; color: var(--text);
+    font-family: inherit; font-size: 0.92rem;
+    padding: 0.45rem 0.6rem; border-radius: 6px; cursor: pointer;
+  }
+  .nav-item:hover { background: var(--panel2); }
+  .nav-item.active { background: var(--red); color: #fff; }
+  .nav-item .done-mark { margin-left: auto; color: var(--green); font-size: 0.8rem; }
+
+  h2 { color: var(--red-bright); font-size: 1.7rem; margin-bottom: 0.3rem; }
+  h3 { color: var(--brass); font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h4 { color: var(--text); font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .subtitle { color: var(--muted); font-style: italic; margin-bottom: 1.4rem; }
+  p { margin-bottom: 0.8rem; }
+  ul, ol { margin: 0 0 0.9rem 1.4rem; }
+  li { margin-bottom: 0.35rem; }
+  strong { color: var(--brass); }
+  em { color: var(--text); }
+
+  .callout {
+    background: var(--panel); border-left: 4px solid var(--brass);
+    padding: 0.8rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0;
+  }
+  .callout.warn { border-left-color: var(--red-bright); }
+  .callout.tip { border-left-color: var(--green); }
+  .callout .label {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--muted); display: block; margin-bottom: 0.2rem;
+  }
+
+  table { border-collapse: collapse; margin: 0.8rem 0 1.2rem; width: 100%; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 0.45rem 0.7rem; text-align: left; }
+  th { background: var(--panel); color: var(--brass); }
+  tr:nth-child(even) td { background: var(--panel); }
+  .table-wrap { overflow-x: auto; }
+
+  code {
+    background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 4px;
+    font-family: 'Courier New', monospace; font-size: 0.88em; color: var(--brass);
+  }
+
+  /* Quiz */
+  .quiz { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; margin: 1.5rem 0; }
+  .quiz h3 { margin-top: 0; }
+  .quiz-q { margin-bottom: 1.1rem; }
+  .quiz-q .qtext { font-weight: bold; margin-bottom: 0.4rem; }
+  .quiz-opt {
+    display: block; width: 100%; text-align: left;
+    background: var(--panel2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.45rem 0.7rem; margin-bottom: 0.35rem;
+    font-family: inherit; font-size: 0.92rem; cursor: pointer;
+  }
+  .quiz-opt:hover { border-color: var(--brass); }
+  .quiz-opt.correct { border-color: var(--green); background: #24301f; }
+  .quiz-opt.wrong { border-color: var(--red-bright); background: #33201d; }
+  .quiz-opt:disabled { cursor: default; }
+  .quiz-explain { font-size: 0.88rem; color: var(--muted); margin: 0.3rem 0 0; display: none; }
+  .quiz-explain.show { display: block; }
+  .quiz-score { font-weight: bold; color: var(--brass); margin-top: 0.5rem; }
+
+  /* Calculator */
+  .calc { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; margin: 1.2rem 0; }
+  .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.7rem; margin-bottom: 0.8rem; }
+  .calc label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.15rem; }
+  .calc input, .calc select {
+    width: 100%; background: var(--panel2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px; padding: 0.35rem 0.5rem;
+    font-family: inherit; font-size: 0.95rem;
+  }
+  .calc-result { background: var(--panel2); border-radius: 8px; padding: 0.8rem 1rem; font-size: 0.95rem; }
+  .calc-result .big { color: var(--red-bright); font-size: 1.3rem; font-weight: bold; }
+  .calc button, .btn {
+    background: var(--red); color: #fff; border: none; border-radius: 6px;
+    padding: 0.5rem 1.1rem; font-family: inherit; font-size: 0.95rem; cursor: pointer;
+  }
+  .calc button:hover, .btn:hover { background: var(--red-bright); }
+
+  .footer-note { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--muted); }
+  .pager { display: flex; justify-content: space-between; margin-top: 2.2rem; gap: 1rem; }
+  .pager .btn { background: var(--panel2); border: 1px solid var(--border); color: var(--text); }
+  .pager .btn:hover { border-color: var(--brass); }
+
+  #menu-toggle { display: none; }
+  @media (max-width: 800px) {
+    #app { flex-direction: column; }
+    #sidebar { width: 100%; min-width: 0; height: auto; position: static; display: none; }
+    #sidebar.open { display: block; }
+    #content { padding: 1.2rem; }
+    #menu-toggle {
+      display: block; position: sticky; top: 0; z-index: 10;
+      width: 100%; background: var(--red); color: #fff; border: none;
+      padding: 0.7rem; font-family: inherit; font-size: 1rem; cursor: pointer;
+    }
+  }
+</style>
+</head>
+<body>
+<button id="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">⚙ Menu</button>
+<div id="app">
+  <nav id="sidebar">
+    <div class="logo">
+      <div class="cog">⚙</div>
+      <h1>Omnissiah Academy</h1>
+      <p>AdMech &amp; 11th Edition Trainer</p>
+    </div>
+    <div id="nav"></div>
+  </nav>
+  <main id="content"></main>
+</div>
+
+<script>
+// ============================================================
+// LESSON CONTENT
+// All rules content is paraphrased for learning purposes.
+// Always confirm exact wording against the free official Core
+// Rules PDF (Warhammer Community) and the official 40k app.
+// Snapshot of the game state: August 2026 (early 11th edition).
+// ============================================================
+
+const LESSONS = [
+// ------------------------------------------------------------
+{
+  id: 'start', group: 'Getting Started', title: 'How to Use This App',
+  html: `
+    <h2>Welcome, Magos</h2>
+    <p class="subtitle">Your training regimen for Warhammer 40,000 11th edition and the Adeptus Mechanicus.</p>
+    <p>This app teaches three intertwined things at once, because that's how you'll actually use them at the table:</p>
+    <ul>
+      <li><strong>The 11th edition core rules</strong> — the game everyone plays.</li>
+      <li><strong>Your army</strong> — how the Adeptus Mechanicus works inside those rules.</li>
+      <li><strong>Competitive thinking</strong> — what "meta lists" are, why they win, and the strategic philosophy taught by The Art of War coaching studio (whose AdMech specialist, Richard Siegler, won the 2025 Warhammer World Championship <em>with AdMech</em>).</li>
+    </ul>
+    <h3>Recommended path</h3>
+    <ol>
+      <li>Work through the <strong>Core Rules</strong> modules in order — stats first, then turn structure, then the big 11th edition changes.</li>
+      <li>Then the <strong>Your Army</strong> modules — AdMech identity, units, and detachments.</li>
+      <li>Then <strong>Competitive Play</strong> — meta, list building, Art of War philosophy, and the Turn 1 playbook.</li>
+      <li>Take each module's quiz. Your progress is saved in this browser (green ✓ in the sidebar).</li>
+    </ol>
+    <div class="callout warn">
+      <span class="label">Important — sources and accuracy</span>
+      This app paraphrases rules concepts for learning. It is a fan-made study aid, not a rules document. The exact, binding wording lives in the free <strong>Core Rules PDF on Warhammer Community</strong>, the free <strong>AdMech Faction Pack</strong>, and the official <strong>Warhammer 40,000 app</strong>. 11th edition launched 20 June 2026 and is receiving FAQs and balance updates — when this app and an official document disagree, the official document wins. Art of War opinions are summarized from their public articles, interviews, and videos; their full teaching is in their paid content (theartofwar40k.com and their YouTube channel).
+    </div>
+  `
+},
+// ------------------------------------------------------------
+{
+  id: 'stats', group: 'Core Rules', title: 'Reading Stats & Datasheets', quiz: 'stats',
+  html: `
+    <h2>Reading Stats &amp; Datasheets</h2>
+    <p class="subtitle">Every model is a bundle of numbers. Learn to read them and half the game opens up.</p>
+    <p>Every unit has a <strong>datasheet</strong>: its characteristics, weapons, abilities, and keywords. Here's what the numbers mean.</p>
+    <h3>Model characteristics</h3>
+    <div class="table-wrap"><table>
+      <tr><th>Stat</th><th>Name</th><th>What it does</th><th>AdMech example</th></tr>
+      <tr><td><code>M</code></td><td>Move</td><td>How far the model moves in inches in the Movement phase.</td><td>Skitarii are ordinary on foot; Sulphurhounds and Ironstriders are fast.</td></tr>
+      <tr><td><code>T</code></td><td>Toughness</td><td>How hard the model is to wound. Compared against the attacker's Strength.</td><td>Skitarii are fragile (low T); Kastelan Robots are genuinely tough.</td></tr>
+      <tr><td><code>Sv</code></td><td>Save</td><td>The d6 roll needed to shrug a wound. Lower is better. AP makes it worse.</td><td>Skitarii carry a mediocre save — they live on cover and positioning, not armour.</td></tr>
+      <tr><td><code>W</code></td><td>Wounds</td><td>Damage a model soaks before it dies.</td><td>1–2 on infantry, lots on Kastelans and tanks.</td></tr>
+      <tr><td><code>Ld</code></td><td>Leadership</td><td>Target for morale-style tests (Battle-shock and similar).</td><td>—</td></tr>
+      <tr><td><code>OC</code></td><td>Objective Control</td><td>How much "control" each model exerts when contesting a location. A unit with 0 OC can't hold anything.</td><td>Cheap Skitarii bodies exist substantially to project OC.</td></tr>
+    </table></div>
+    <h3>Weapon characteristics</h3>
+    <div class="table-wrap"><table>
+      <tr><th>Stat</th><th>Name</th><th>What it does</th></tr>
+      <tr><td><code>Range</code></td><td>Range</td><td>Maximum distance in inches. "Melee" means fight phase only.</td></tr>
+      <tr><td><code>A</code></td><td>Attacks</td><td>Number of dice you roll to hit.</td></tr>
+      <tr><td><code>BS/WS</code></td><td>Ballistic / Weapon Skill</td><td>The roll needed to hit (ranged / melee). 3+ means a 3 or higher on a d6.</td></tr>
+      <tr><td><code>S</code></td><td>Strength</td><td>Compared to the target's Toughness to see what you need to wound.</td></tr>
+      <tr><td><code>AP</code></td><td>Armour Penetration</td><td>Worsens the target's save. AP-2 turns a 4+ save into a 6+.</td></tr>
+      <tr><td><code>D</code></td><td>Damage</td><td>Wounds inflicted per failed save. D2 kills a 2-wound model with one failed save.</td></tr>
+    </table></div>
+    <h3>The attack sequence</h3>
+    <ol>
+      <li><strong>Hit roll</strong> — roll <code>A</code> dice, needing <code>BS/WS</code> or better. 11th edition adds situational modifiers: shooting at a unit <em>in terrain</em> is at −1 BS, and shooting from an elevated position grants +1 BS ("Plunging Fire").</li>
+      <li><strong>Wound roll</strong> — compare <code>S</code> to <code>T</code>:</li>
+    </ol>
+    <div class="table-wrap"><table>
+      <tr><th>Comparison</th><th>Wound on</th></tr>
+      <tr><td>S at least double T</td><td>2+</td></tr>
+      <tr><td>S greater than T</td><td>3+</td></tr>
+      <tr><td>S equals T</td><td>4+</td></tr>
+      <tr><td>S less than T</td><td>5+</td></tr>
+      <tr><td>S half T or less</td><td>6+</td></tr>
+    </table></div>
+    <ol start="3">
+      <li><strong>Saving throw</strong> — defender rolls <code>Sv</code>, modified by <code>AP</code>. An <em>invulnerable save</em> ignores AP but never improves. Cover helps the armour save of units in terrain.</li>
+      <li><strong>Damage</strong> — each failed save inflicts <code>D</code> wounds. Excess damage from one attack does not spill into the next model.</li>
+    </ol>
+    <div class="callout tip">
+      <span class="label">AdMech takeaway</span>
+      AdMech units usually have <em>weak individual stats</em> and strong <em>force multipliers</em> — imperatives, detachment rules, leaders, and stratagems that push those mediocre dice up a notch. Reading a datasheet as "base stats + every buff I can legally stack this phase" is the core AdMech skill.
+    </div>
+    <h3>Mathhammer trainer</h3>
+    <p>Use this calculator to build intuition. Try a squad of 10 Skitarii Rangers (30 shots with three ranger rifles' worth of extras is a common profile-check) against T5 infantry, then flip a +1 to hit on and watch the output jump ~25–50%. That jump <em>is</em> the AdMech army rule in numeric form.</p>
+    <div class="calc" id="mathhammer"></div>
+  `
+},
+// ------------------------------------------------------------
+{
+  id: 'turns', group: 'Core Rules', title: 'Turn Structure & Phases', quiz: 'turns',
+  html: `
+    <h2>Turn Structure &amp; Phases</h2>
+    <p class="subtitle">A battle is five battle rounds. Each round, both players take a turn made of phases.</p>
+    <h3>The phases of your turn</h3>
+    <ol>
+      <li><strong>Command phase</strong> — gain Command Points (CP), resolve start-of-turn effects, make Battle-shock tests. For AdMech this is where big army decisions land (e.g. your Doctrina Imperative stance for the round).</li>
+      <li><strong>Movement phase</strong> — move, Advance (extra d6" but usually no shooting), Fall Back (leave combat), or Remain Stationary. Units arriving from Reserves show up here.</li>
+      <li><strong>Shooting phase</strong> — units shoot eligible targets, respecting the new terrain and Hidden rules (next module).</li>
+      <li><strong>Charge phase</strong> — declare charges, roll 2d6, and move into <strong>Engagement Range — which is now 2"</strong> in 11th edition (up from 1"). This makes charges slightly easier to complete and makes screening units cover more space.</li>
+      <li><strong>Fight phase</strong> — combats resolve. 11th edition restructured this phase around <strong>alternating activations</strong> (players trade unit activations rather than one side swinging everything) with <strong>pooled saves</strong>. The upshot: you can no longer count on your whole side swinging before the enemy answers, so committing multiple cheap units matters more than one giant blob.</li>
+    </ol>
+    <h3>Movement freedoms new to 11th</h3>
+    <ul>
+      <li>All units can move <strong>through friendly units</strong> freely — your Rangers no longer form a wall that traps your own Ironstriders.</li>
+      <li><strong>Rotating a model is free</strong> — no more measuring the pivot of a Dunecrawler's hull.</li>
+    </ul>
+    <div class="callout tip">
+      <span class="label">AdMech takeaway</span>
+      Art of War's core AdMech thesis is <em>"movement and positioning first, damage second."</em> Free movement through friendlies and free rotation directly reward the dense, layered AdMech infantry formations that were awkward to shuffle in 10th. Practice moving your whole army as one choreographed machine — the phase structure is your metronome.
+    </div>
+  `
+},
+// ------------------------------------------------------------
+{
+  id: 'eleventh', group: 'Core Rules', title: "11th Edition's Big Changes", quiz: 'eleventh',
+  html: `
+    <h2>11th Edition's Big Changes</h2>
+    <p class="subtitle">Released 20 June 2026 (Armageddon box). Free Core Rules PDF. Your 10th edition codex is still legal.</p>
+    <p>If you learned any 10th edition, here is what changed. If you're brand new, these are the rules veterans are most likely to get wrong — knowing them is free equity.</p>
+    <h3>1. Detachment Points (DP)</h3>
+    <p>Armies no longer pick exactly one detachment. You have a <strong>DP budget — 2 DP at 1,000 points, 3 DP at 2,000 points</strong> — and each detachment costs 1–3 DP. So at 2,000 points you might run one powerhouse 3 DP detachment, or stack a 2 DP + 1 DP pair, or even three 1 DP detachments. This is the single biggest list-building change in the edition and the heart of current AdMech list debates (see the Detachments module).</p>
+    <h3>2. Terrain actually hides you</h3>
+    <ul>
+      <li>Shooting at a unit <strong>in terrain</strong> suffers <strong>−1 BS</strong>.</li>
+      <li><strong>Plunging Fire</strong>: shooting from an elevated position grants <strong>+1 BS</strong>.</li>
+      <li><strong>Hidden</strong>: Infantry, Beast, and Swarm units in cover that haven't recently fired gain Hidden status — enemies more than <strong>15"</strong> away simply <em>cannot target them</em>.</li>
+    </ul>
+    <h3>3. Engagement range is 2"</h3>
+    <p>Charges, screens, pile-ins, and consolidations all changed texture. A screening line needs fewer models to deny the same area, and tag-charges reach further.</p>
+    <h3>4. Objectives became actions</h3>
+    <p>Fixed objective markers are gone from missions. Instead units perform <strong>special actions</strong> — holding terrain features, clearing locations of enemies, and similar mission tasks. Cheap durable units that can afford to spend their turn doing actions are more valuable than ever.</p>
+    <h3>5. Stratagem discipline</h3>
+    <p>A unit can benefit from <strong>only one stratagem per phase</strong> — and Command Re-roll counts. Nearly every stratagem was rewritten, and effects that made stratagems free now reduce cost by 1 CP instead. Full detail in the Stratagems module.</p>
+    <h3>6. Fight phase: alternating activations, pooled saves</h3>
+    <p>Combat is a back-and-forth of unit activations with a pooled-save resolution, not "my whole army swings, then yours."</p>
+    <h3>7. Backwards compatibility</h3>
+    <p>10th edition codexes remain legal — the free <strong>Faction Packs</strong> (AdMech got one with three new detachments) layer 11th edition content on top, and old detachments received DP costs.</p>
+    <div class="callout tip">
+      <span class="label">AdMech takeaway</span>
+      Almost every one of these changes is <em>good for you</em>. Your army is mostly Infantry (Hidden status), lives in cover (−1 to be hit), floods cheap OC bodies (action-based missions), and wants granular multi-unit play (alternating fights, one-strat-per-unit). 11th edition rewards exactly the patient, positional game AdMech was already forced to play.
+    </div>
+  `
+},
+// ------------------------------------------------------------
+{
+  id: 'strats', group: 'Core Rules', title: 'CP & Stratagems', quiz: 'strats',
+  html: `
+    <h2>Command Points &amp; Stratagems</h2>
+    <p class="subtitle">Your once-per-phase trump cards. 11th edition made every one of them a real decision.</p>
+    <h3>The economy</h3>
+    <ul>
+      <li>You gain CP each Command phase and spend them on <strong>stratagems</strong> — one-shot rule breaks printed in the core rules and your detachments.</li>
+      <li><strong>The one-stratagem rule:</strong> a unit can benefit from only <em>one</em> stratagem in any given phase. Command Re-roll is a stratagem, so "buff this unit AND re-roll its charge" is no longer legal in the same phase. This killed 10th edition's stacked "blender unit" turns.</li>
+      <li>Effects that used to make stratagems free now just <strong>reduce cost by 1 CP</strong>.</li>
+      <li>Detachments vary in how many stratagems they carry — some have several, some none. A detachment's stratagem list is part of its price.</li>
+    </ul>
+    <h3>How to think about stratagems (the skill, not the list)</h3>
+    <ol>
+      <li><strong>Sequencing beats hoarding.</strong> Since each unit gets one stratagem per phase, plan <em>which unit</em> gets <em>which effect</em> in <em>which phase</em> before you start rolling. Good players narrate this to themselves in the Command phase.</li>
+      <li><strong>Save 1 CP for disaster insurance</strong> when a single roll (a charge, a critical save) can swing the game — but remember using Command Re-roll on a unit locks that unit out of other stratagems that phase.</li>
+      <li><strong>Defensive strats are usually worth more than offensive ones.</strong> Damage you prevent keeps scoring bodies alive; damage you add is often overkill.</li>
+    </ol>
+    <h3>AdMech examples (from current detachments)</h3>
+    <div class="table-wrap"><table>
+      <tr><th>Stratagem</th><th>Detachment</th><th>Effect (paraphrased)</th><th>When you use it</th></tr>
+      <tr><td>Defect Scrutiny</td><td>Cohort Acquisitus</td><td>Two Recon Augury units support each other's shooting and gain Ignores Cover; helps spot Hidden units.</td><td>Cracking enemy units camping the −1-to-hit terrain your opponent thinks is safe.</td></tr>
+      <tr><td>Motive Imperative</td><td>Cohort Cybernetica</td><td>1 CP: an AdMech Vehicle gets +3" Move and +1 to Advance and Charge rolls.</td><td>Turn 1–2 repositioning, or forcing a charge threat range your opponent mis-measured.</td></tr>
+      <tr><td>Machine Superiority</td><td>Cohort Cybernetica</td><td>1 CP: a Legio Cybernetica or Vehicle unit can Fall Back and shoot, ignoring modifiers until end of turn.</td><td>Un-tagging your Kastelans from a chaff charge and deleting the chaff anyway.</td></tr>
+    </table></div>
+    <div class="callout warn">
+      <span class="label">Check the app</span>
+      Stratagem wording, costs, and even existence shift with every balance update. Learn the <em>decision framework</em> here; read the exact current text in the official app before a game.
+    </div>
+  `
+},
+// ------------------------------------------------------------
+{
+  id: 'identity', group: 'Your Army', title: 'AdMech Identity & Army Rule', quiz: 'identity',
+  html: `
+    <h2>AdMech Identity &amp; Army Rule</h2>
+    <p class="subtitle">The Adeptus Mechanicus: cheap bodies, layered buffs, and a plan for every phase.</p>
+    <h3>What kind of army is this?</h3>
+    <p>Richard Siegler (Art of War's AdMech coach and 2025 World Champion with the faction) describes AdMech as an army about <strong>buffing relatively cheap units to do specialized tasks or punch above their weight</strong> — a faction that gets into winning positions <strong>through movement and positioning first, damage second</strong>. Nothing in your list is individually scary. The <em>combination</em> — the right imperative, the right terrain, the right stratagem, on the right unit, at the right time — is scary.</p>
+    <p>Practical consequences:</p>
+    <ul>
+      <li>You will usually have <strong>more units</strong> than your opponent. That's more activations in the alternating fight phase, more action-doers for missions, more screens — and more chances to make sequencing mistakes. AdMech is widely rated as one of the <strong>steepest learning curves</strong> in the game. That's the price of its ceiling.</li>
+      <li>You <strong>trade</strong>, you don't brawl. Offer cheap units, take valuable ones, and win on the mission while the opponent wins the highlight reel.</li>
+      <li>Your damage is <strong>volume-based</strong>: many mid-strength shots plus buffs, rather than few giant hits.</li>
+    </ul>
+    <h3>Army rule: Doctrina Imperatives</h3>
+    <p>Your army rule (carried forward from the 10th edition codex into 11th) is <strong>Doctrina Imperatives</strong> — each battle round you broadcast a stance to your Skitarii:</p>
+    <ul>
+      <li><strong>Protector Imperative</strong> — a ranged-discipline stance: Skitarii shooting improves when they hold position (their guns behave as Heavy — rewarding stationary fire).</li>
+      <li><strong>Conqueror Imperative</strong> — an aggression stance: Skitarii melee improves on the charge (Lance-style — rewarding the charge).</li>
+    </ul>
+    <p>The rule reads simple and plays deep: it's an army-wide, round-long commitment. Announcing Protector tells your opponent you intend to sit and shoot this round; Conqueror telegraphs a push. Choosing the stance that matches the round's <em>plan</em> — not the stance that matches the last thing that hurt you — is a genuine skill.</p>
+    <div class="callout warn">
+      <span class="label">Verify wording</span>
+      Early 11th edition reviews report Doctrina Imperatives is unchanged, but its exact text (which keywords it touches, which units qualify) is what your codex/faction pack + the app say today. Check before you play.
+    </div>
+    <h3>The Canticles legacy</h3>
+    <p>Older editions ran on <em>Canticles of the Omnissiah</em>, army-wide chants chosen each round. The design DNA survives: AdMech has always been the faction of <strong>round-by-round army-wide mode selection</strong>. If you internalize "every Command phase I choose what my army <em>is</em> this round," you understand AdMech across every edition.</p>
+  `
+},
+// ------------------------------------------------------------
+{
+  id: 'units', group: 'Your Army', title: 'Key Units by Battlefield Role', quiz: 'units',
+  html: `
+    <h2>Key Units by Battlefield Role</h2>
+    <p class="subtitle">Learn units as jobs, not names. Every meta AdMech list is these jobs in different ratios.</p>
+    <h3>The backbone — Skitarii infantry</h3>
+    <ul>
+      <li><strong>Skitarii Rangers</strong> — cheap battleline with long-range rifles that reward standing still (a natural Protector Imperative unit). Jobs: hold terrain, perform mission actions, screen, chip wounds.</li>
+      <li><strong>Skitarii Vanguard</strong> — cheap battleline with short-range, high-volume radium weapons. Jobs: midfield pressure, trading piece, action-doer that can also hurt things up close.</li>
+    </ul>
+    <p>In 11th edition these units are <em>Infantry in cover</em>, which means <strong>Hidden</strong> — beyond 15" they often can't be shot at all. A Skitarii unit that hasn't fired, sitting in terrain, doing a mission action, is close to untouchable. This is the quiet engine of current AdMech play.</p>
+    <h3>The scalpels — Sicarians &amp; snipers</h3>
+    <ul>
+      <li><strong>Sicarian Infiltrators</strong> — forward-deploying skirmishers. Jobs: steal early board space, deny enemy infiltration/scout moves, first trade.</li>
+      <li><strong>Sicarian Ruststalkers</strong> — fast melee skirmishers. Jobs: punish light units, tag things you don't want shooting.</li>
+      <li><strong>Sydonian Skatros</strong> — a stilt-legged sniper. Jobs: character assassination, and in 11th its height can earn <strong>Plunging Fire</strong> angles.</li>
+    </ul>
+    <h3>The cavalry — fast pressure</h3>
+    <ul>
+      <li><strong>Serberys Raiders</strong> — fast cavalry scouts. Jobs: screening deep zones, late-game objective grabs, action monkeys with speed.</li>
+      <li><strong>Serberys Sulphurhounds</strong> — aggressive cavalry with pistols. Jobs: chaff clearance, early aggression.</li>
+      <li><strong>Pteraxii Sterylizors</strong> — flying flamer infantry. Jobs: deep-strike threats, overwatch punishment, backfield harassment.</li>
+    </ul>
+    <h3>The guns — anti-tank &amp; heavy fire</h3>
+    <ul>
+      <li><strong>Ironstrider Ballistarii</strong> (lascannon walkers) — your classic anti-tank. Cheap-ish, mobile, fragile.</li>
+      <li><strong>Onager Dunecrawler</strong> — durable weapons platform (the Neutron Laser profile is the tank-killer).</li>
+      <li><strong>Skorpius Disintegrator</strong> — a tank that shoots mid-range volume; pairs with its transport sibling.</li>
+      <li><strong>Skorpius Dunerider</strong> — the transport. Jobs: deliver Vanguard/breachers, block movement lanes, be an annoying 10-wound wall.</li>
+    </ul>
+    <h3>The centerpiece — Legio Cybernetica</h3>
+    <ul>
+      <li><strong>Kastelan Robots</strong> + <strong>Cybernetica Datasmith</strong> — genuinely tough robots with switchable protocols, the closest thing AdMech has to a durable hammer. The Cohort Cybernetica detachment is built around them (+2" Move, +1 OC, and they gain the army rule).</li>
+    </ul>
+    <h3>The clergy — Tech-Priest characters &amp; Electro-Priests</h3>
+    <ul>
+      <li><strong>Tech-Priest characters</strong> (Dominus, Manipulus, Marshal, Enginseer) — leaders that attach to units and hand out the buffs your cheap bodies need. The <strong>Skitarii Marshal</strong> in particular exists to make Skitarii units better at their jobs.</li>
+      <li><strong>Corpuscarii / Fulgurite Electro-Priests</strong> — lightning zealots. The 11th edition faction pack gave them a dedicated detachment that early reviews called an "overwatch-proof buzzsaw" — a melee flood that's hard to punish on the way in.</li>
+      <li><strong>Belisarius Cawl</strong> — the named super-priest: expensive, durable, a walking buff station.</li>
+    </ul>
+    <div class="callout tip">
+      <span class="label">How to learn this</span>
+      Don't memorize datasheets. Memorize <strong>jobs</strong>: two battleline bricks, one screen, one action unit, one anti-tank source, one pressure piece, one buff character. Then look at any tournament list and ask "which unit is doing which job?" — it will decompose instantly.
+    </div>
+  `
+},
+// ------------------------------------------------------------
+{
+  id: 'detachments', group: 'Your Army', title: 'Detachments & the DP System', quiz: 'detachments',
+  html: `
+    <h2>Detachments &amp; the DP System</h2>
+    <p class="subtitle">11th edition lets you stack detachments. AdMech got three new ones — and kept its codex ones.</p>
+    <h3>The budget</h3>
+    <p>You have <strong>3 Detachment Points at 2,000 points</strong> (2 DP at 1,000). Each detachment costs 1–3 DP. Your 10th edition codex detachments remain legal with assigned DP costs, and the free 11th edition <strong>AdMech Faction Pack</strong> added three new detachments themed around Skitarii recon, Tech-Priest, and Electro-Priest play.</p>
+    <h3>The new Faction Pack detachments</h3>
+    <h4>Cohort Acquisitus — 1 DP (Reconnaissance)</h4>
+    <ul>
+      <li>Skitarii-focused recon detachment: your scouts gain <strong>Ignores Cover</strong> capability on the move and tools to counter the new Hidden rules.</li>
+      <li><strong>Enhanced Augurs</strong> (enhancement) and <strong>Defect Scrutiny</strong> (stratagem) let fast units spot hidden targets and pair up two Recon Augury units to support each other's shooting.</li>
+      <li>Why it matters: in an edition where everyone hides in −1-to-hit terrain, <em>Ignores Cover and Hidden-detection are premium currency</em>. At 1 DP it's an efficient splash alongside a bigger detachment.</li>
+    </ul>
+    <h4>The Electro-Priest detachment — melee flood</h4>
+    <ul>
+      <li>Early reviews summarized it as turning Electro-Priests into an <strong>"overwatch-proof buzzsaw"</strong> — a way to run priest blobs that can't be conventionally punished as they close.</li>
+      <li>Currently more of a flavor/skew option than a tournament staple — fun, but check recent results before you invest.</li>
+    </ul>
+    <h4>The Tech-Priest / battle-congregation option</h4>
+    <ul>
+      <li>The third pack detachment leans into Tech-Priest leadership. The exact names and text of all three are in the free Faction Pack PDF — read it alongside this module; it's short.</li>
+    </ul>
+    <h3>Carried-forward codex detachments (10th ed, still legal)</h3>
+    <ul>
+      <li><strong>Skitarii Hunter Cohort</strong> — the classic Skitarii-legion detachment; the engine of most competitive AdMech infantry play through late 10th and into 11th.</li>
+      <li><strong>Cohort Cybernetica — 2 DP (Take &amp; Hold)</strong> — Kastelans and Datasmiths get +2" Move and +1 OC and gain the army rule; carries a deep stratagem set (Motive Imperative, Machine Superiority, and more: 6 stratagems, 4 enhancements). The robot-centerpiece build.</li>
+      <li><strong>Rad-Zone Corps, Explorator Maniple, Data-Psalm Conclave, Haloscreed Battle Clade</strong> — the rest of the codex suite; niche but legal, and DP stacking gives some of them new life as 1 DP splashes.</li>
+    </ul>
+    <h3>The list-building puzzle this creates</h3>
+    <p>The current AdMech deckbuilding question is: <strong>which 3 DP of detachments?</strong> Typical shapes being explored in early 11th:</p>
+    <ul>
+      <li><strong>Skitarii Hunter Cohort + Cohort Acquisitus</strong> — double down on infantry: the Hunter Cohort's Skitarii buffs plus recon/Ignores-Cover tech. The "play the mission, hide everywhere, out-activate everyone" build.</li>
+      <li><strong>Cohort Cybernetica (2 DP) + a 1 DP splash</strong> — a durable robot core the opponent must answer, with Skitarii doing missions around it.</li>
+      <li><strong>Triple 1 DP</strong> — maximum rules coverage, maximum complexity. Very Siegler-coded; not for week one.</li>
+    </ul>
+    <div class="callout warn">
+      <span class="label">Verify</span>
+      DP costs and detachment contents are exactly the kind of thing balance dataslates adjust. Treat the shapes above as the <em>reasoning pattern</em>; confirm current costs in the app before building.
+    </div>
+  `
+},
+// ------------------------------------------------------------
+{
+  id: 'meta', group: 'Competitive Play', title: 'What "Meta Lists" Are & Why', quiz: 'meta',
+  html: `
+    <h2>What "Meta Lists" Are &amp; Why</h2>
+    <p class="subtitle">The meta isn't a menu to copy — it's evidence about what the game currently rewards.</p>
+    <h3>What "meta" actually means</h3>
+    <p>The <strong>metagame</strong> is the population of armies people actually bring to tournaments, and how they perform against each other. A <strong>meta list</strong> is a list shape that keeps winning across many events and players — meaning its success is probably structural (rules efficiency, mission fit, matchup spread), not one pilot's brilliance.</p>
+    <p>Lists become meta for a small number of repeating reasons:</p>
+    <ol>
+      <li><strong>Points efficiency</strong> — units whose output/durability exceeds their cost.</li>
+      <li><strong>Mission fit</strong> — the list scores the current mission pack easily (in 11th: cheap units that can afford to do actions).</li>
+      <li><strong>Rules interactions</strong> — detachment + unit combos that multiply (e.g., Ignores Cover in a terrain-bonus edition).</li>
+      <li><strong>Matchup spread</strong> — no common army auto-beats it.</li>
+      <li><strong>Results feedback loop</strong> — winning lists get copied, refined, and re-win, until a balance dataslate or a counter-meta emerges.</li>
+    </ol>
+    <h3>Where AdMech has been (a short competitive history)</h3>
+    <ul>
+      <li><strong>November 2025:</strong> AdMech peaked — about a quarter of the World Championships top cut was AdMech, and <strong>Richard Siegler won the World Championship with the faction</strong> (notably, he was also the only AdMech in the top 10 — the faction rewarded its best pilot far more than its average one; remember that asymmetry).</li>
+      <li><strong>Spring 2026 (late 10th):</strong> settled to mid-tier — the consistent community read was "Skitarii builds work but have a steep learning curve."</li>
+      <li><strong>Early 11th (June–August 2026):</strong> AdMech is diving into the new metagame near the front of the pack (community stats sites track them alongside Custodes and Black Templars among the early winners), largely because the edition's terrain, Hidden, action-mission, and activation rules all favor cheap infantry played patiently.</li>
+    </ul>
+    <h3>Anatomy of a current AdMech meta list</h3>
+    <p>Strip any recent winning AdMech list to jobs and you'll find roughly:</p>
+    <div class="table-wrap"><table>
+      <tr><th>Slice</th><th>Typical content</th><th>Why</th></tr>
+      <tr><td>Battleline mass</td><td>Several units of Rangers/Vanguard, some with a Marshal</td><td>OC, actions, screens, Hidden abuse — the mission engine.</td></tr>
+      <tr><td>Forward skirmish</td><td>Infiltrators, Raiders</td><td>Board control turn 0–1; deny enemy scouts; first trade.</td></tr>
+      <tr><td>Anti-tank</td><td>Ironstriders and/or Dunecrawler/Disintegrator</td><td>You must answer vehicles; infantry rifles can't.</td></tr>
+      <tr><td>Pressure/trade piece</td><td>Sulphurhounds, Pteraxii, Ruststalkers, or a Kastelan brick</td><td>Forces the opponent to react on your schedule.</td></tr>
+      <tr><td>Buff characters</td><td>Marshal(s), Manipulus/Dominus, sometimes Cawl</td><td>The multipliers that make cheap units punch up.</td></tr>
+    </table></div>
+    <h3>How to use meta lists correctly</h3>
+    <ol>
+      <li><strong>Read them as arguments, not recipes.</strong> Ask "what problem does each slice solve?" If you can't answer, you can't pilot it.</li>
+      <li><strong>Netlist, then deviate one unit at a time.</strong> Start from a proven list so your losses teach you piloting, not list-building, mistakes.</li>
+      <li><strong>Track sources:</strong> tournament data sites (Best Coast Pairings-derived stats like Warpfriends' weekly roundups), Goonhammer's competitive articles, and Art of War's content are the standard triangulation.</li>
+    </ol>
+  `
+},
+// ------------------------------------------------------------
+{
+  id: 'aow', group: 'Competitive Play', title: 'The Art of War Philosophy', quiz: 'aow',
+  html: `
+    <h2>The Art of War Philosophy</h2>
+    <p class="subtitle">What the Art of War studio teaches about AdMech — summarized from their public articles, interviews, and videos.</p>
+    <h3>Who they are</h3>
+    <p><strong>The Art of War</strong> (theartofwar40k.com + YouTube) is a professional 40k coaching studio: tournament-winning players producing lessons, battle reports, and one-on-one coaching. Their AdMech specialist is <strong>Richard Siegler</strong> — two-time ITC global champion and <strong>2025 World Champion of Warhammer, won with AdMech</strong>. When this app cites "Art of War thinking," it primarily means Siegler's published approach.</p>
+    <h3>The five pillars of Siegler's AdMech (as publicly articulated)</h3>
+    <ol>
+      <li><strong>Movement first, damage second.</strong> AdMech "gets into winning positions through movement and positioning first, damage second." Before every move ask: <em>where does this unit need to be at the end of NEXT turn?</em> Damage is a byproduct of position.</li>
+      <li><strong>Choreography.</strong> His stated top priority for new AdMech generals: learn to "choreograph that movement so that every part of the war machine is in perfect sync." Concretely — move your units in a deliberate order (screens first, then shooters, then reserves math), because in an army of 15+ units, move-order mistakes compound.</li>
+      <li><strong>Buff cheap specialists.</strong> The faction's engine is "buffing relatively cheap units to do specialized tasks or punch above their weight." Every buff should have a designated recipient <em>before</em> the turn starts.</li>
+      <li><strong>The trading game.</strong> Siegler describes his own style as chess-like trading: offer the opponent cheap material, take back expensive material or scoring position, and <strong>force tough decisions</strong> — his stated aim is making opponents choose between two bad options every turn.</li>
+      <li><strong>Patient late game.</strong> He is known for methodical, patient late-game play: AdMech often looks behind on the table at the half but wins on points at the end, because the trades were pre-planned. Don't panic-commit in round 2.</li>
+    </ol>
+    <h3>Their list-building doctrine, applied</h3>
+    <ul>
+      <li>Design lists around <strong>force disposition</strong> (what jobs are covered) rather than around favorite models — his masterclass explicitly frames list design as: which detachments and units are <em>vital</em>, which dispositions work, and how to deploy without mistakes after analyzing terrain.</li>
+      <li><strong>Deployment is part of list building.</strong> A recurring AoW teaching point: most games are materially decided by deployment + turn 1 setup. Their coaching spends unusual time on terrain analysis before models hit the table — which is exactly what the Turn 1 module drills next.</li>
+    </ul>
+    <h3>Where to go deeper</h3>
+    <ul>
+      <li>Their <strong>YouTube channel</strong> — free battle reports and faction discussions; watch specifically for Siegler AdMech games and note his move <em>order</em>, not just his moves.</li>
+      <li>The <strong>AdMech Masterclass with Richard Siegler</strong> (paid, theartofwar40k.com) — a 3-session, ~4.5 hour on-demand course covering 11th edition AdMech list design, vital units/detachments, and deployment. This app's summaries are no substitute for it.</li>
+      <li>His long-form articles and interviews (Goonhammer and Art of War's site) on AdMech codex list-building.</li>
+    </ul>
+    <div class="callout warn">
+      <span class="label">Attribution honesty</span>
+      Everything above is paraphrased from public statements and marketing descriptions of their content. The specific current unit choices they recommend live behind their paywall and change with every dataslate — treat this module as their <em>philosophy</em>, which is stable, not their <em>tech</em>, which isn't.
+    </div>
+  `
+},
+// ------------------------------------------------------------
+{
+  id: 'turn1', group: 'Competitive Play', title: 'The Turn 1 Playbook', quiz: 'turn1',
+  html: `
+    <h2>The Turn 1 Playbook</h2>
+    <p class="subtitle">Most AdMech games are won or lost before round 2. Here is the deployment-and-first-turn drill.</p>
+    <h3>Step 0 — Terrain analysis (before deployment)</h3>
+    <ol>
+      <li>Walk the table. Mark which pieces grant <strong>cover/Hidden</strong> (your Skitarii homes), which have <strong>elevation</strong> (Plunging Fire perches for a Skatros), and which are the <strong>mission's action locations</strong>.</li>
+      <li>Identify the <strong>15" Hidden bubbles</strong>: from each terrain piece your infantry will sit in, what can get within 15" to even be allowed to shoot them? Those approach lanes are what you screen.</li>
+      <li>Find the <strong>no-man's-land piece</strong> both armies want by round 2. Your plan revolves around arriving there second with more OC, not first with less.</li>
+    </ol>
+    <h3>Step 1 — Deployment principles</h3>
+    <ul>
+      <li><strong>Deploy hidden, not spread.</strong> Infantry in terrain, out of turn-1 threat ranges. With Hidden status, a unit in cover beyond 15" that hasn't shot often cannot be targeted at all — use that as free durability.</li>
+      <li><strong>Screen with the 2" engagement range in mind</strong> — screens need fewer models per inch now; Raiders and cheap Skitarii deny deep zones efficiently.</li>
+      <li><strong>Infiltrators/scouts contest first.</strong> Sicarian Infiltrators exist to take the midfield terrain your opponent wanted, or to deny their infiltration.</li>
+      <li><strong>Stage your buff characters</strong> attached to the units they'll actually buff in round 2–3, not wherever fits.</li>
+      <li><strong>Reserve deliberately.</strong> Pteraxii and similar arrive later where the game will be, not where it is.</li>
+    </ul>
+    <h3>Step 2 — Going first vs going second</h3>
+    <ul>
+      <li><strong>Going first</strong> you take board space: push skirmishers to the line you can hold, keep the army hidden, and <em>don't shoot units into visibility for chip damage</em> — shooting can cost a unit its Hidden status; a wasted volley that reveals three units is a classic new-AdMech error.</li>
+      <li><strong>Going second</strong> you weather one volley (you deployed hidden, so it should be a weak one) and then punch into an extended opponent. AdMech is comfortable second — patient trading is the Siegler game.</li>
+    </ul>
+    <h3>Step 3 — The Turn 1 checklist</h3>
+    <ol>
+      <li><strong>Command phase:</strong> pick your Doctrina Imperative for the round to match the <em>plan</em> (usually Protector on round 1 — you're holding, not charging). Bank your CP unless a stratagem is clearly on-script.</li>
+      <li><strong>Movement:</strong> move screens first, then scoring units, then gun platforms. Advance action-units toward round-2 action spots. Ask Siegler's question for every unit: <em>where does it need to be at the end of next turn?</em></li>
+      <li><strong>Shooting:</strong> shoot only what earns its exposure. Ironstriders/Dunecrawlers (not Hidden anyway) fire at priority armour; infantry mostly hold fire and stay Hidden.</li>
+      <li><strong>Charge/Fight:</strong> round 1 charges are rare and usually only with designated trade pieces (Sulphurhounds into chaff). Never charge your mission engine forward.</li>
+      <li><strong>End-of-turn audit:</strong> can anything of mine be charged by more than it can survive? Is every unit either Hidden, screened, or expendable-on-purpose? If not, you misplayed — note it for next game.</li>
+    </ol>
+    <div class="callout tip">
+      <span class="label">The one-sentence version</span>
+      Turn 1 you are not trying to win the game — you are trying to <strong>not lose it</strong>: stay hidden, take only free board, keep every trade pre-priced, and set up the round 2–3 mission turns where AdMech actually wins.
+    </div>
+  `
+},
+// ------------------------------------------------------------
+{
+  id: 'glossary', group: 'Reference', title: 'Glossary & Further Reading',
+  html: `
+    <h2>Glossary &amp; Further Reading</h2>
+    <p class="subtitle">Quick lookups and the sources this app is built from.</p>
+    <h3>Glossary</h3>
+    <div class="table-wrap"><table>
+      <tr><th>Term</th><th>Meaning</th></tr>
+      <tr><td>AdMech</td><td>Adeptus Mechanicus — your faction.</td></tr>
+      <tr><td>AP</td><td>Armour Penetration — worsens enemy saves.</td></tr>
+      <tr><td>Battleline</td><td>Core troops keyword; Rangers and Vanguard.</td></tr>
+      <tr><td>CP</td><td>Command Points — currency for stratagems.</td></tr>
+      <tr><td>Dataslate</td><td>GW's periodic balance patch. Invalidates stale advice — including this app's specifics.</td></tr>
+      <tr><td>DP</td><td>Detachment Points — 11th edition's detachment budget (3 at 2,000 pts).</td></tr>
+      <tr><td>Hidden</td><td>11th ed status: Infantry/Beast/Swarm in cover that haven't recently fired can't be targeted from beyond 15".</td></tr>
+      <tr><td>Mathhammer</td><td>Expected-value math on dice — see the calculator in the Stats module.</td></tr>
+      <tr><td>Meta</td><td>The current population of competitive lists and their results.</td></tr>
+      <tr><td>MSU</td><td>"Multiple Small Units" — many cheap units instead of few big ones. AdMech's natural shape.</td></tr>
+      <tr><td>OC</td><td>Objective Control — per-model weight when contesting locations.</td></tr>
+      <tr><td>Screen</td><td>A cheap unit placed to deny enemy movement, charges, or deep strikes.</td></tr>
+      <tr><td>Skew</td><td>A list that maxes one thing (e.g., all robots) to break normal answers.</td></tr>
+      <tr><td>Trade</td><td>Deliberately exchanging a cheaper asset for a more valuable one (or for position).</td></tr>
+    </table></div>
+    <h3>Sources &amp; further reading</h3>
+    <ul>
+      <li><strong>Official:</strong> Warhammer Community — free 11th edition Core Rules PDF, AdMech Faction Pack, and Faction Focus articles; the Warhammer 40,000 app (always-current rules).</li>
+      <li><strong>Rules explainers:</strong> Wargamer's 11th edition starter guide; Bell of Lost Souls and Spikey Bits coverage of the 11th edition launch rules and the AdMech faction pack.</li>
+      <li><strong>Competitive analysis:</strong> Goonhammer (detachment focuses, competitive faction guides); Warpfriends weekly meta stats (Best Coast Pairings data); Grimslate tier lists.</li>
+      <li><strong>Art of War:</strong> theartofwar40k.com — Richard Siegler's coach page, the AdMech faction hub, and the paid AdMech Masterclass; plus their YouTube channel for free battle reports.</li>
+      <li><strong>Community wikis:</strong> the 1d6chan 11th edition AdMech tactics page (irreverent but thorough unit-by-unit takes).</li>
+    </ul>
+    <p class="footer-note">Fan-made study aid. Warhammer 40,000, Adeptus Mechanicus, and all associated names are trademarks of Games Workshop Ltd. This app is unaffiliated with Games Workshop and with The Art of War, quotes no rules text verbatim, and exists to help one Magos learn. Content snapshot: August 2026.</p>
+  `
+},
+];
+
+// ============================================================
+// QUIZZES
+// ============================================================
+const QUIZZES = {
+  stats: { title: 'Quiz — Stats & the Attack Sequence', questions: [
+    { q: 'Your S5 weapon shoots a T5 target. What do you need to wound?',
+      opts: ['3+', '4+', '5+'], a: 1, why: 'Equal Strength and Toughness always wounds on 4+.' },
+    { q: 'An AP-2 attack hits a model with a 4+ armour save and a 5+ invulnerable save. Which save does the defender use?',
+      opts: ['4+ armour', '5+ invulnerable', '6+ armour'], a: 1, why: 'AP-2 degrades the 4+ armour to 6+; the invulnerable save ignores AP, so 5+ invuln is better.' },
+    { q: 'In 11th edition, shooting at a unit that is in terrain suffers…',
+      opts: ['−1 to wound', '−1 to hit (BS)', 'no penalty, but the target gets +1 save'], a: 1, why: '11th edition applies a flat −1 BS against units in terrain. (Cover can also help saves — but the headline change is the hit penalty.)' },
+    { q: 'A Damage 2 weapon causes one failed save against a squad of 1-wound Skitarii. What happens?',
+      opts: ['Two Skitarii die', 'One dies; the excess is lost', 'One dies; 1 damage carries to the next model'], a: 1, why: 'Excess damage from a single attack never spills over to another model.' },
+    { q: 'What does the OC stat govern?',
+      opts: ['How many attacks a model makes', 'How much control the model exerts when contesting locations', 'Overwatch shooting'], a: 1, why: 'Objective Control is the weight each model contributes to holding locations — the mission stat, and the reason cheap Skitarii matter.' },
+  ]},
+  turns: { title: 'Quiz — Turn Structure', questions: [
+    { q: 'Engagement range in 11th edition is…',
+      opts: ['1"', '2"', '3"'], a: 1, why: 'Up from 1" — screens cover more space and charges complete more easily.' },
+    { q: 'The 11th edition fight phase resolves…',
+      opts: ['All of the active player\'s units first', 'By alternating unit activations between players', 'Simultaneously'], a: 1, why: 'Alternating activations (with pooled saves) — you can no longer swing your whole army before the reply.' },
+    { q: 'Moving through friendly models in 11th edition is…',
+      opts: ['Forbidden', 'Allowed for all units by default', 'Allowed only for Infantry'], a: 1, why: 'All units move freely through friendlies now — a big quality-of-life gain for dense AdMech formations.' },
+    { q: 'In which phase does AdMech typically lock in its Doctrina Imperative stance?',
+      opts: ['Command phase (start of battle round)', 'Shooting phase', 'Any time'], a: 0, why: 'It\'s a battle-round commitment made up front — announcing your plan for the round.' },
+  ]},
+  eleventh: { title: 'Quiz — 11th Edition Changes', questions: [
+    { q: 'At 2,000 points, your Detachment Point budget is…',
+      opts: ['1 DP', '2 DP', '3 DP'], a: 2, why: '3 DP at 2,000 points (2 DP at 1,000) — spend it on one big detachment or stack smaller ones.' },
+    { q: 'A Skitarii unit in cover that has not recently fired is beyond 15" from all enemies. It is…',
+      opts: ['Targetable normally', 'Hidden — it cannot be targeted', '−1 to hit only'], a: 1, why: 'The Hidden status makes unfired Infantry/Beast/Swarm units in cover untargetable beyond 15".' },
+    { q: 'What happened to classic objective markers in 11th edition missions?',
+      opts: ['They\'re worth more VP', 'Removed — replaced by special actions on locations', 'They move each round'], a: 1, why: 'Missions now run on action-based scoring: holding terrain, clearing locations — which favors armies with cheap units to spare, like yours.' },
+    { q: 'Your 10th edition AdMech codex is…',
+      opts: ['Invalid in 11th', 'Still legal, supplemented by a free Faction Pack', 'Legal only in casual play'], a: 1, why: '10th codexes stay legal; Faction Packs layer new detachments (AdMech got three) and DP costs on top.' },
+    { q: 'Plunging Fire gives…',
+      opts: ['+1 BS when shooting from elevation', '+1 Damage from elevation', 'Ignores Cover from elevation'], a: 0, why: 'Height now buys accuracy — one reason the stilt-walking Sydonian Skatros got more interesting.' },
+  ]},
+  strats: { title: 'Quiz — CP & Stratagems', questions: [
+    { q: 'How many stratagems can benefit one unit in a single phase in 11th edition?',
+      opts: ['One', 'Two', 'Unlimited if you have the CP'], a: 0, why: 'One per unit per phase — the defining stratagem change of the edition.' },
+    { q: 'You used a buff stratagem on your Ironstriders this Shooting phase and then rolled terribly. Can you Command Re-roll?',
+      opts: ['Yes — re-rolls are always allowed', 'No — Command Re-roll is a stratagem and the unit already benefited from one this phase', 'Only if you have 2+ CP'], a: 1, why: 'Command Re-roll counts against the one-stratagem limit. Decide buff vs insurance before you commit.' },
+    { q: 'In 11th edition, an ability that used to make a stratagem free now…',
+      opts: ['Still makes it free', 'Reduces its cost by 1 CP', 'Refunds the CP on a 4+'], a: 1, why: 'Free-stratagem effects were normalized to a 1 CP discount.' },
+    { q: 'Cohort Cybernetica\'s Machine Superiority stratagem (paraphrased) lets a robot or vehicle unit…',
+      opts: ['Shoot twice', 'Fall Back and still shoot, ignoring modifiers', 'Deep strike'], a: 1, why: 'It\'s the un-tagging tool — chaff charges your Kastelans, you back out and delete it anyway.' },
+  ]},
+  identity: { title: 'Quiz — AdMech Identity', questions: [
+    { q: 'Per Art of War\'s Richard Siegler, AdMech gets into winning positions primarily through…',
+      opts: ['Raw damage output', 'Movement and positioning, with damage second', 'Durability and attrition'], a: 1, why: 'His core published thesis: movement and positioning first, damage second.' },
+    { q: 'Doctrina Imperatives asks you each battle round to…',
+      opts: ['Discard a stratagem', 'Choose an army-wide stance (Protector or Conqueror)', 'Roll on a table of buffs'], a: 1, why: 'Protector rewards stationary shooting; Conqueror rewards the charge. It\'s an army-wide, round-long commitment.' },
+    { q: 'AdMech\'s reputation in the competitive community is…',
+      opts: ['Easy to pick up, low ceiling', 'Steep learning curve, high ceiling', 'Purely luck-dependent'], a: 1, why: 'The consistent meta-report phrasing is "works, but steep learning curve" — the 2025 Worlds result (champion, but the only AdMech in the top 10) says the same thing.' },
+    { q: 'The healthiest way to think about your many cheap units is…',
+      opts: ['Keep every unit alive', 'Pre-priced trade material — spend cheap assets for expensive ones or position', 'Castle them all together'], a: 1, why: 'Trading is the Siegler game: offer cheap, take expensive, win the mission.' },
+  ]},
+  units: { title: 'Quiz — Units & Roles', questions: [
+    { q: 'Which unit is your classic dedicated anti-tank walker?',
+      opts: ['Skitarii Vanguard', 'Ironstrider Ballistarius', 'Serberys Raiders'], a: 1, why: 'Lascannon Ironstriders are the traditional AdMech tank answer, backed by Dunecrawler/Disintegrator profiles.' },
+    { q: 'Why are basic Skitarii extra durable in 11th edition specifically?',
+      opts: ['They gained Toughness', 'As Infantry in cover, unfired units become Hidden and often can\'t be targeted beyond 15"', 'They gained an invulnerable save'], a: 1, why: 'The Hidden mechanic is the quiet engine of current AdMech play.' },
+    { q: 'Sicarian Infiltrators\' primary competitive job is…',
+      opts: ['Anti-tank', 'Early board control — taking or denying midfield space before turn 1', 'Character bodyguarding'], a: 1, why: 'Forward deployment steals space and denies enemy scout tricks — a tempo unit, not a damage unit.' },
+    { q: 'The Cohort Cybernetica detachment is built around…',
+      opts: ['Electro-Priests', 'Kastelan Robots and Datasmiths', 'Skitarii cavalry'], a: 1, why: 'It grants Legio Cybernetica units +2" Move, +1 OC, and the army rule — the robot-centerpiece build.' },
+  ]},
+  detachments: { title: 'Quiz — Detachments & DP', questions: [
+    { q: 'Cohort Acquisitus\' competitive selling point in 11th edition is…',
+      opts: ['More attacks in melee', 'Ignores Cover and Hidden-detection in an edition defined by terrain bonuses', 'Cheaper vehicles'], a: 1, why: 'When everyone is at −1 to hit and hiding, the recon detachment\'s cover-ignoring tools are premium — for just 1 DP.' },
+    { q: 'A 2,000-point army could legally run…',
+      opts: ['Only one detachment ever', 'Cohort Cybernetica (2 DP) plus a 1 DP detachment', 'Any number of detachments'], a: 1, why: '3 DP budget at 2,000 points: 2+1 (or 1+1+1, or one 3 DP detachment) all fit.' },
+    { q: 'The three new Faction Pack detachments are themed around…',
+      opts: ['Skitarii recon, Tech-Priests, Electro-Priests', 'Knights, Titans, tanks', 'Three forge worlds'], a: 0, why: 'Skitarii recon (Cohort Acquisitus), a Tech-Priest lean, and the Electro-Priest "buzzsaw" — layered on top of the still-legal codex detachments.' },
+    { q: 'Which carried-forward detachment has driven most competitive AdMech infantry play?',
+      opts: ['Explorator Maniple', 'Skitarii Hunter Cohort', 'Data-Psalm Conclave'], a: 1, why: 'The Hunter Cohort is the workhorse of the Skitarii-mass style that took Siegler to the world title.' },
+  ]},
+  meta: { title: 'Quiz — The Meta', questions: [
+    { q: 'A "meta list" is best understood as…',
+      opts: ['The official best list', 'A list shape that keeps winning across many events and players — evidence of structural strength', 'Any list from a famous player'], a: 1, why: 'Repeated results across pilots imply the strength is in the structure, not one player.' },
+    { q: 'What happened at the November 2025 World Championships?',
+      opts: ['AdMech was absent', 'Siegler won it with AdMech — while being the only AdMech in the top 10', 'AdMech swept the entire top 10'], a: 1, why: 'Peak AdMech, but concentrated in its best pilot — the faction rewards skill disproportionately.' },
+    { q: 'Why do action-based 11th edition missions favor AdMech?',
+      opts: ['Actions require Toughness 10', 'Cheap plentiful units can afford to spend turns doing actions while the rest fight', 'AdMech ignores actions'], a: 1, why: 'A 15+ unit army can always spare an action-doer; an elite 6-unit army often can\'t.' },
+    { q: 'The right way to use a netlist is…',
+      opts: ['Copy it and never change it', 'Copy it, learn it, then deviate one unit at a time', 'Avoid netlists entirely'], a: 1, why: 'Starting from proven structure makes your losses teach piloting lessons instead of list-building noise.' },
+  ]},
+  aow: { title: 'Quiz — Art of War Philosophy', questions: [
+    { q: 'Siegler\'s stated top priority for new AdMech generals is learning to…',
+      opts: ['Memorize every datasheet', 'Choreograph movement so the whole war machine moves in sync', 'Maximize shooting every turn'], a: 1, why: 'Choreography — deliberate move order across many units — is his named priority.' },
+    { q: 'His personal playstyle is publicly described as…',
+      opts: ['All-in alpha strikes', 'Chess-like trading, forcing tough positions, patient late game', 'Pure gunline castling'], a: 1, why: 'Trading + forcing mistakes + methodical late-game plays — the description on his own coach profile.' },
+    { q: 'What does Art of War coaching spend unusual time on before models are even placed?',
+      opts: ['Dice rituals', 'Terrain analysis and deployment planning', 'Paint scores'], a: 1, why: 'Their teaching treats deployment as part of list building — most games are shaped before turn 1.' },
+    { q: 'The question Siegler\'s method asks about every unit each Movement phase is…',
+      opts: ['What can it kill right now?', 'Where does it need to be at the end of NEXT turn?', 'Is it in cover?'], a: 1, why: 'Position for the future, not the present — damage is a byproduct of position.' },
+  ]},
+  turn1: { title: 'Quiz — Turn 1', questions: [
+    { q: 'Your Rangers are Hidden in cover, and a juicy but non-critical target is visible. Shooting them would…',
+      opts: ['Always be correct — free damage', 'Potentially cost them Hidden status — only shoot if the damage is worth the exposure', 'Be illegal'], a: 1, why: 'Firing can reveal a Hidden unit. The classic new-AdMech turn-1 error is trading untargetability for chip damage.' },
+    { q: 'Which Imperative is the usual round 1 pick, and why?',
+      opts: ['Conqueror — you should charge turn 1', 'Protector — round 1 is usually about holding position and shooting selectively', 'Neither matters'], a: 1, why: 'Turn 1 you\'re staging, not charging; Protector matches the plan. (The skill is matching stance to plan, not defaulting.)' },
+    { q: 'Going second with AdMech is…',
+      opts: ['A disaster', 'Comfortable — deploy hidden, weather a weak volley, punch into an extended opponent', 'Only good against melee armies'], a: 1, why: 'Hidden deployment defangs enemy alpha strikes, and patient counter-trading is the faction\'s game.' },
+    { q: 'The end-of-turn-1 audit question is…',
+      opts: ['Did I kill enough?', 'Is every unit Hidden, screened, or expendable on purpose?', 'Did I use all my CP?'], a: 1, why: 'Turn 1 is about not losing: every exposure should be priced in advance.' },
+    { q: 'Sicarian Infiltrators deploy forward primarily to…',
+      opts: ['Assassinate characters turn 1', 'Take or deny midfield space before the game starts', 'Guard your home table edge'], a: 1, why: 'Board space turn 0 converts into mission points rounds 2–5.' },
+  ]},
+};
+
+// ============================================================
+// APP ENGINE
+// ============================================================
+const PROGRESS_KEY = 'omnissiah-progress-v1';
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveProgress(p) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); }
+
+let currentId = location.hash.replace('#', '') || 'start';
+if (!LESSONS.some(l => l.id === currentId)) currentId = 'start';
+
+function renderNav() {
+  const progress = loadProgress();
+  const nav = document.getElementById('nav');
+  nav.innerHTML = '';
+  let lastGroup = null, groupDiv = null;
+  for (const lesson of LESSONS) {
+    if (lesson.group !== lastGroup) {
+      lastGroup = lesson.group;
+      groupDiv = document.createElement('div');
+      groupDiv.className = 'nav-group';
+      groupDiv.innerHTML = `<div class="nav-group-title">${lesson.group}</div>`;
+      nav.appendChild(groupDiv);
+    }
+    const btn = document.createElement('button');
+    btn.className = 'nav-item' + (lesson.id === currentId ? ' active' : '');
+    const done = lesson.quiz && progress[lesson.quiz] && progress[lesson.quiz].passed;
+    btn.innerHTML = `<span>${lesson.title}</span>` + (done ? '<span class="done-mark">✓</span>' : '');
+    btn.onclick = () => { show(lesson.id); document.getElementById('sidebar').classList.remove('open'); };
+    groupDiv.appendChild(btn);
+  }
+}
+
+function show(id) {
+  currentId = id;
+  location.hash = id;
+  const lesson = LESSONS.find(l => l.id === id);
+  const idx = LESSONS.findIndex(l => l.id === id);
+  const content = document.getElementById('content');
+  content.innerHTML = lesson.html;
+
+  if (lesson.quiz) renderQuiz(lesson.quiz, content);
+
+  // pager
+  const pager = document.createElement('div');
+  pager.className = 'pager';
+  const prev = LESSONS[idx - 1], next = LESSONS[idx + 1];
+  pager.innerHTML =
+    (prev ? `<button class="btn" onclick="show('${prev.id}')">← ${prev.title}</button>` : '<span></span>') +
+    (next ? `<button class="btn" onclick="show('${next.id}')">${next.title} →</button>` : '<span></span>');
+  content.appendChild(pager);
+
+  if (id === 'stats') renderCalculator();
+  renderNav();
+  window.scrollTo(0, 0);
+}
+
+// ---- Quiz engine ----
+function renderQuiz(quizId, container) {
+  const quiz = QUIZZES[quizId];
+  if (!quiz) return;
+  const progress = loadProgress();
+  const box = document.createElement('div');
+  box.className = 'quiz';
+  const prior = progress[quizId];
+  box.innerHTML = `<h3>${quiz.title}</h3>` +
+    (prior ? `<p class="quiz-score">Best so far: ${prior.best}/${quiz.questions.length}${prior.passed ? ' — passed ✓' : ''}</p>` : '');
+  let answered = 0, correct = 0;
+  quiz.questions.forEach((q, qi) => {
+    const qDiv = document.createElement('div');
+    qDiv.className = 'quiz-q';
+    qDiv.innerHTML = `<div class="qtext">${qi + 1}. ${q.q}</div>`;
+    const explain = document.createElement('p');
+    explain.className = 'quiz-explain';
+    explain.textContent = q.why;
+    const optBtns = [];
+    const order = q.opts.map((_, i) => i);
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    order.forEach((oi, pos) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt';
+      b.textContent = q.opts[oi];
+      b.onclick = () => {
+        optBtns.forEach(x => x.disabled = true);
+        if (oi === q.a) { b.classList.add('correct'); correct++; }
+        else { b.classList.add('wrong'); optBtns[order.indexOf(q.a)].classList.add('correct'); }
+        explain.classList.add('show');
+        answered++;
+        if (answered === quiz.questions.length) finishQuiz(quizId, quiz, correct, box);
+      };
+      optBtns.push(b);
+      qDiv.appendChild(b);
+    });
+    qDiv.appendChild(explain);
+    box.appendChild(qDiv);
+  });
+  container.appendChild(box);
+}
+
+function finishQuiz(quizId, quiz, correct, box) {
+  const total = quiz.questions.length;
+  const passed = correct >= Math.ceil(total * 0.75);
+  const progress = loadProgress();
+  const prior = progress[quizId] || { best: 0, passed: false };
+  progress[quizId] = { best: Math.max(prior.best, correct), passed: prior.passed || passed };
+  saveProgress(progress);
+  const result = document.createElement('p');
+  result.className = 'quiz-score';
+  result.textContent = passed
+    ? `${correct}/${total} — the Omnissiah is pleased. Module complete. ✓`
+    : `${correct}/${total} — recalibrate and retry (75% to pass). Reload the page to retake.`;
+  box.appendChild(result);
+  renderNav();
+}
+
+// ---- Mathhammer calculator ----
+function renderCalculator() {
+  const el = document.getElementById('mathhammer');
+  if (!el) return;
+  el.innerHTML = `
+    <h4 style="margin-top:0">Expected damage calculator</h4>
+    <div class="calc-grid">
+      <div><label>Attacks</label><input id="c-a" type="number" value="20" min="1"></div>
+      <div><label>Hit on (2–6)</label><input id="c-bs" type="number" value="4" min="2" max="6"></div>
+      <div><label>Hit modifier</label><select id="c-mod"><option value="1">+1</option><option value="0" selected>0</option><option value="-1">−1</option></select></div>
+      <div><label>Strength</label><input id="c-s" type="number" value="4" min="1"></div>
+      <div><label>Toughness</label><input id="c-t" type="number" value="5" min="1"></div>
+      <div><label>AP (0–6)</label><input id="c-ap" type="number" value="1" min="0" max="6"></div>
+      <div><label>Save (2–7, 7=none)</label><input id="c-sv" type="number" value="4" min="2" max="7"></div>
+      <div><label>Invuln (2–7, 7=none)</label><input id="c-inv" type="number" value="7" min="2" max="7"></div>
+      <div><label>Damage per wound</label><input id="c-d" type="number" value="1" min="1"></div>
+    </div>
+    <button onclick="runCalc()">Calculate</button>
+    <div class="calc-result" id="c-out" style="margin-top:0.8rem">Set your profile and calculate.</div>
+  `;
+  runCalc();
+}
+
+function runCalc() {
+  const v = id => parseFloat(document.getElementById(id).value);
+  const A = v('c-a'), bs = v('c-bs'), mod = v('c-mod'), S = v('c-s'), T = v('c-t'),
+        AP = v('c-ap'), Sv = v('c-sv'), Inv = v('c-inv'), D = v('c-d');
+  // hit: modified target clamped to 2..6 (nat 1 always fails, nat 6 always hits)
+  const hitTarget = Math.min(6, Math.max(2, bs - mod));
+  const pHit = (7 - hitTarget) / 6;
+  // wound
+  let wTarget;
+  if (S >= 2 * T) wTarget = 2;
+  else if (S > T) wTarget = 3;
+  else if (S === T) wTarget = 4;
+  else if (S * 2 <= T) wTarget = 6;
+  else wTarget = 5;
+  const pWound = (7 - wTarget) / 6;
+  // save: best of modified armour vs invuln
+  const armour = Math.min(7, Sv + AP);
+  const saveTarget = Math.min(armour, Inv);
+  const pFail = saveTarget >= 7 ? 1 : (saveTarget - 1) / 6;
+  const hits = A * pHit, wounds = hits * pWound, unsaved = wounds * pFail, dmg = unsaved * D;
+  document.getElementById('c-out').innerHTML =
+    `Hits: <strong>${hits.toFixed(1)}</strong> (need ${hitTarget}+) → ` +
+    `Wounds: <strong>${wounds.toFixed(1)}</strong> (need ${wTarget}+) → ` +
+    `Unsaved: <strong>${unsaved.toFixed(1)}</strong> (save ${saveTarget >= 7 ? 'none' : saveTarget + '+'}) → ` +
+    `<span class="big">${dmg.toFixed(1)} damage</span><br>` +
+    `<span style="color:var(--muted);font-size:0.85rem">Averages over many dice — single games swing hard. Use this for target priority, not certainty.</span>`;
+}
+
+// ---- boot ----
+window.addEventListener('hashchange', () => {
+  const id = location.hash.replace('#', '');
+  if (LESSONS.some(l => l.id === id) && id !== currentId) show(id);
+});
+renderNav();
+show(currentId);
+</script>
+</body>
+</html>
