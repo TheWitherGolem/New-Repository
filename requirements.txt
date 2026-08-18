@@ -1,0 +1,11 @@
+# Neural voices. Ships a prebuilt win_amd64 wheel with espeak-ng bundled, so
+# no compiler or separate phonemiser install is needed. Pulls in onnxruntime.
+piper-tts>=1.7,<2
+
+# Audio output. The wheel bundles PortAudio.
+sounddevice>=0.4.6,<1
+numpy>=1.24,<3
+
+# Tray icon.
+pystray>=0.19,<1
+pillow>=10,<12
