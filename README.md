@@ -14,18 +14,20 @@ nothing needs an internet connection.
 
 ## Installing
 
-You need 64-bit Python 3.10 or newer ([python.org](https://python.org), and tick
-*Add python.exe to PATH* in the installer).
+First install 64-bit Python 3.10 or newer from
+[python.org](https://www.python.org/downloads/windows/). **Tick "Add python.exe
+to PATH"** on the first screen of its installer — Aloud cannot find Python
+without it.
 
-Then, in the folder you cloned this into:
+Then double-click **`Install.bat`** in this folder and wait. It builds a `.venv`
+beside itself, installs the dependencies into it, and downloads a first voice.
+Nothing is installed system-wide and no administrator rights are needed.
+
+If you would rather drive it yourself, `Install.bat` is only a wrapper around:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
-
-That builds a `.venv` beside the script, installs the dependencies into it, and
-downloads a first voice. Nothing is installed system-wide and no administrator
-rights are needed.
 
 Useful variations:
 
